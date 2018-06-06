@@ -7,8 +7,10 @@ package com.ufpel.bigdata.base;
 
 import java.util.Arrays;
 import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import scala.Tuple2;
 
 /**
  *
@@ -28,8 +30,14 @@ public class Spark {
         this.data = ctx.textFile(log);
     }
 
-    public long ContaPalavras(String separador) {
+    public JavaPairRDD<String, Integer> ContaPalavras(String separador) {
 
-        return this.data.flatMap(x -> Arrays.asList(x.split(separador)).iterator()).count();
+        JavaPairRDD<String, Integer> counts = this.data
+                .flatMap(x -> Arrays.asList(x.split(separador)).iterator())
+                .mapToPair(word -> new Tuple2<>(word, 1))
+                .reduceByKey((a, b) -> a + b);
+
+        return counts;
+
     }
 }

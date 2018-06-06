@@ -5,60 +5,88 @@
  */
 package com.ufpel.storm;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichSpout;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
-import org.apache.storm.utils.Utils;
 
-//This spout randomly emits sentences
+/**
+ *
+ * @author WeslenSchiavon
+ */
 public class RandomSentenceSpout extends BaseRichSpout {
-    //Collector used to emit output
 
+    private AtomicLong linesRead;
+    private BufferedReader reader;
+    private String fileName;
     SpoutOutputCollector _collector;
-    //Used to generate a random number
     Random _rand;
 
-    //Open is called when an instance of the class is created
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-        //Set the instance collector to the one passed in
         _collector = collector;
-        //For randomness
         _rand = new Random();
+
+        linesRead = new AtomicLong(0);
+        _collector = collector;
+        try {
+            fileName = (String) conf.get("linespout.file");
+            reader = new BufferedReader(new FileReader("stops.txt"));
+            // read and ignore the header if one exists
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
-    //Emit data to the stream
     @Override
     public void nextTuple() {
-        //Sleep for a bit
-        Utils.sleep(100);
-        //The sentences that are randomly emitted
-        String[] sentences = new String[]{"the cow jumped over the moon", "an apple a day keeps the doctor away",
-            "four score and seven years ago", "snow white and the seven dwarfs", "i am at two with nature"};
-        //Randomly pick a sentence
-        String sentence = sentences[_rand.nextInt(sentences.length)];
-        //Emit the sentence
-        _collector.emit(new Values(sentence));
+        try {
+            String line = reader.readLine();
+            if (line != null) {
+                long id = linesRead.incrementAndGet();
+                _collector.emit(new Values(line), id);
+            } else {
+                System.out.println("Finished reading file, " + linesRead.get() + " lines read");
+
+                synchronized (this) {
+                    this.wait();
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    //Ack is not implemented since this is a basic example
     @Override
     public void ack(Object id) {
     }
 
-    //Fail is not implemented since this is a basic example
     @Override
     public void fail(Object id) {
+        System.err.println("Failed line number " + id);
     }
 
-    //Declare the output fields. In this case, an sentence
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("sentence"));
+        declarer.declare(new Fields("word"));
     }
+
+    @Override
+    public void deactivate() {
+        try {
+            reader.close();
+        } catch (IOException e) {
+        }
+    }
+
 }

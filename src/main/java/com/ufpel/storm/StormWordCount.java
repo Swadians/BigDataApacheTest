@@ -5,6 +5,7 @@
  */
 package com.ufpel.storm;
 
+import com.ufpel.util.Monitorador;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
@@ -15,14 +16,15 @@ import org.apache.storm.tuple.Fields;
  *
  * @author WeslenSchiavon
  */
-public class Main {
+public class StormWordCount {
 
     public static void main(String[] args) throws Exception {
         //Used to build the topology
         TopologyBuilder builder = new TopologyBuilder();
         //Add the spout, with a name of 'spout'
         //and parallelism hint of 5 executors
-        builder.setSpout("spout", new RandomSentenceSpout(), 5);
+        builder.setSpout("spout", new RandomSentenceSpout(), 1);
+
         //Add the SplitSentence bolt, with a name of 'split'
         //and parallelism hint of 8 executors
         //shufflegrouping subscribes to the spout, and equally distributes
@@ -52,8 +54,12 @@ public class Main {
             conf.setMaxTaskParallelism(3);
             //LocalCluster is used to run locally
             LocalCluster cluster = new LocalCluster();
+
+            Monitorador.startMemoryMonitor();
+            Monitorador.startTimeMonitoring();
             //submit the topology
             cluster.submitTopology("word-count", conf, builder.createTopology());
+
             //sleep
             Thread.sleep(10000000);
             //shut down the cluster

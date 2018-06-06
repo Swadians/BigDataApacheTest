@@ -5,6 +5,7 @@
  */
 package com.ufpel.storm;
 
+import com.ufpel.util.Monitorador;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -59,6 +60,19 @@ public class WordCount extends BaseBasicBolt {
                 collector.emit(new Values(word, count));
                 logger.info("Emitting a count of " + count + " for word " + word);
             }
+
+            synchronized (this) {
+                try {
+                    logger.info("# tarefa " + Thread.currentThread().getId() + " terminada!");
+                    System.out.println("Tempo: " + Monitorador.getTimeExecutation() + "s");
+                    System.out.println("Memoria: " + Monitorador.getMaxMemoryUsage() + "MB");
+
+                    this.wait();
+                } catch (InterruptedException ex) {
+                    logger.error("erro:" + ex);
+                }
+            }
+
         } else {
             //Get the word contents from the tuple
             String word = tuple.getString(0);

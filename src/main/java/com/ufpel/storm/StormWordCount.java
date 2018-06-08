@@ -61,7 +61,7 @@ public class StormWordCount {
             cluster.submitTopology("word-count", conf, builder.createTopology());
 
             //sleep
-            Thread.sleep(10000000);
+            Thread.sleep(Long.MAX_VALUE);
             //shut down the cluster
             cluster.shutdown();
         }

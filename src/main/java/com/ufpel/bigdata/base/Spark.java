@@ -5,7 +5,9 @@
  */
 package com.ufpel.bigdata.base;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -20,14 +22,15 @@ public class Spark {
 
     private final String log;
     private final JavaRDD<String> data;
+    private final JavaSparkContext sparkContext;
 
     public Spark(String log) {
         this.log = log;
 
         SparkConf conf = new SparkConf().setMaster("local").setAppName("Spark Master");
-        JavaSparkContext ctx = new JavaSparkContext(conf);
+        this.sparkContext = new JavaSparkContext(conf);
 
-        this.data = ctx.textFile(log);
+        this.data = this.sparkContext.textFile(log);
     }
 
     public JavaPairRDD<String, Integer> ContaPalavras(String separador) {
@@ -40,4 +43,25 @@ public class Spark {
         return counts;
 
     }
+
+    public double calcPiPorTequinicaDosDardos(int numIteracoes) {
+
+        List<Integer> l = new ArrayList<>(numIteracoes);
+        for (int i = 0; i < numIteracoes; i++) {
+            l.add(i);
+        }
+
+        long count = this.sparkContext.parallelize(l).filter(i -> {
+            double x = Math.random();
+            double y = Math.random();
+            return x * x + y * y < 1;
+        }).count();
+
+        return 4.0 * count / numIteracoes;
+    }
+
+    public JavaSparkContext getSparkContext() {
+        return sparkContext;
+    }
+
 }

@@ -21,11 +21,11 @@ public class Monitorador {
     public static double getTimeExecutation() {
         long endTime = System.currentTimeMillis();
 
-        return (endTime - Monitorador.startTime) / 1000.0;
+        return (endTime - Monitorador.startTime) / 60000.0;
     }
 
     public static long getAtualMemoryUsage() {
-        return Runtime.getRuntime().totalMemory();
+        return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
 
     public static void startMemoryMonitor() {

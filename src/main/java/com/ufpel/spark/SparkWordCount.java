@@ -7,6 +7,9 @@ package com.ufpel.spark;
 
 import com.ufpel.bigdata.base.Spark;
 import com.ufpel.util.Monitorador;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.Map;
 import org.apache.spark.api.java.JavaPairRDD;
 
@@ -16,19 +19,29 @@ import org.apache.spark.api.java.JavaPairRDD;
  */
 public class SparkWordCount {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
+        PrintStream ps = new PrintStream(new File("Relatorio.txt"));
+
         Monitorador.startMemoryMonitor();
         Monitorador.startTimeMonitoring();
 
-        Spark spark = new Spark("stops.txt");
+        System.out.println("Lendo arquivo: " + args[0]);
+        Spark spark = new Spark(args[0]);
 
         JavaPairRDD<String, Integer> ContaPalavras = spark.ContaPalavras(" ");
 
-        System.out.println("Tempo: " + Monitorador.getTimeExecutation() + "s");
-        System.out.println("Uso de momoria: " + Monitorador.getMaxMemoryUsage() + "MB");
-
+        System.out.println("Coletando dados....");
         Map<String, Integer> wordMap = ContaPalavras.collectAsMap();
 
-        wordMap.keySet().parallelStream().forEach(palavra -> System.out.println("Foram encontradas " + wordMap.get(palavra) + " ocorrencias para palavra " + palavra));
+        ps.println("Tempo: " + Monitorador.getTimeExecutation() + " minutos");
+        ps.println("Uso de momoria: " + Monitorador.getMaxMemoryUsage() + "MB");
+
+        ps.close();
+
+        System.out.println("Imprimindo:");
+
+        System.out.println("Numero de palavras lidas: " + wordMap.keySet().size());
+
+        //  wordMap.keySet().parallelStream().forEach(palavra -> System.out.println("Foram encontradas " + wordMap.get(palavra) + " ocorrencias para palavra " + palavra));
     }
 }

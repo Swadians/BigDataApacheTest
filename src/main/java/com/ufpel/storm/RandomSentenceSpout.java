@@ -30,6 +30,10 @@ public class RandomSentenceSpout extends BaseRichSpout {
     SpoutOutputCollector _collector;
     Random _rand;
 
+    public RandomSentenceSpout(String fileName) {
+        this.fileName = fileName;
+    }
+
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
         _collector = collector;
@@ -38,8 +42,7 @@ public class RandomSentenceSpout extends BaseRichSpout {
         linesRead = new AtomicLong(0);
         _collector = collector;
         try {
-            fileName = (String) conf.get("linespout.file");
-            reader = new BufferedReader(new FileReader("stops.txt"));
+            reader = new BufferedReader(new FileReader(fileName));
             // read and ignore the header if one exists
         } catch (Exception e) {
             throw new RuntimeException(e);

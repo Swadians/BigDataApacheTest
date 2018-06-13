@@ -6,8 +6,12 @@
 package com.ufpel.storm;
 
 import com.ufpel.util.Monitorador;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.storm.Config;
@@ -58,18 +62,21 @@ public class WordCount extends BaseBasicBolt {
             for (String word : counts.keySet()) {
                 Integer count = counts.get(word);
                 collector.emit(new Values(word, count));
-                logger.info("Emitting a count of " + count + " for word " + word);
+                //logger.info("Emitting a count of " + count + " for word " + word);
             }
 
             synchronized (this) {
                 try {
+                    PrintStream ps = new PrintStream(new File("Relatorio.txt"));
                     logger.info("# tarefa " + Thread.currentThread().getId() + " terminada!");
-                    System.out.println("Tempo: " + Monitorador.getTimeExecutation() + "s");
-                    System.out.println("Memoria: " + Monitorador.getMaxMemoryUsage() + "MB");
+                    ps.println("Tempo: " + Monitorador.getTimeExecutation() + "s");
+                    ps.println("Memoria: " + Monitorador.getMaxMemoryUsage() + "MB");
 
                     this.wait();
                 } catch (InterruptedException ex) {
                     logger.error("erro:" + ex);
+                } catch (FileNotFoundException ex) {
+                    java.util.logging.Logger.getLogger(WordCount.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 

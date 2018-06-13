@@ -1,0 +1,2 @@
+Tempo: 0.41815s
+Memoria: 231MB

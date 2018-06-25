@@ -51,17 +51,9 @@ public class RandomNumberSpout extends BaseRichSpout {
     public void nextTuple() {
         long id = this.numberGenereted.incrementAndGet();
 
-        if (id > this.numIteracoes) {
-
+        if (id == this.numIteracoes) {
             synchronized (this) {
-                try {
-
-                    this.collector.emit(new Values(-1.0, -1.0, id - 1.0), id);
-
-                    this.wait();
-                } catch (InterruptedException ex) {
-                    System.out.println("Nao deu pra parar");
-                }
+                this.collector.emit(new Values(-1.0, -1.0, id - 1.0), id);
             }
         } else {
             this.collector.emit(new Values(Math.random(), Math.random(), id), id);

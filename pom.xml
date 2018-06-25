@@ -81,7 +81,7 @@
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
-            <version>${storm.version}</version>
+            <version>1.2.2</version>
             <!-- keep storm out of the jar-with-dependencies -->
 <!--            <scope>provided</scope>-->
         </dependency>
@@ -123,7 +123,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.ufpel.storm.StormWordCount</mainClass>
+                            <mainClass>com.ufpel.spark.SparkPiCalc</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -131,8 +131,6 @@
                     </descriptorRefs>
                 </configuration>
             </plugin>
-            
-            
         </plugins>
         <resources>
             <resource>

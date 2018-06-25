@@ -20,20 +20,20 @@ import scala.Tuple2;
  */
 public class Spark {
 
-    private final String log;
-    private final JavaRDD<String> data;
+    private JavaRDD<String> data;
     private final JavaSparkContext sparkContext;
 
-    public Spark(String log) {
-        this.log = log;
-
+    public Spark() {
         SparkConf conf = new SparkConf().setMaster("local").setAppName("Spark Master");
-        this.sparkContext = new JavaSparkContext(conf);
+        conf.set("spark.driver.maxResultSize", "6g");
+        conf.set("spark.network.timeout", "7000s");
+        conf.set("spark.executor.heartbeatInterval", "6000s");
 
-        this.data = this.sparkContext.textFile(log);
+        this.sparkContext = new JavaSparkContext(conf);
     }
 
-    public JavaPairRDD<String, Integer> ContaPalavras(String separador) {
+    public JavaPairRDD<String, Integer> ContaPalavras(String separador, String arquivo) {
+        this.data = this.sparkContext.textFile(arquivo);
 
         JavaPairRDD<String, Integer> counts = this.data
                 .flatMap(x -> Arrays.asList(x.split(separador)).iterator())
@@ -45,10 +45,9 @@ public class Spark {
     }
 
     public double calcPiPorTequinicaDosDardos(int numIteracoes) {
-
-        List<Integer> l = new ArrayList<>(numIteracoes);
+        List<Boolean> l = new ArrayList<>(numIteracoes);
         for (int i = 0; i < numIteracoes; i++) {
-            l.add(i);
+            l.add(true);
         }
 
         long count = this.sparkContext.parallelize(l).filter(i -> {
@@ -64,4 +63,7 @@ public class Spark {
         return sparkContext;
     }
 
+    public void close() {
+        sparkContext.close();
+    }
 }

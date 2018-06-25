@@ -5,6 +5,7 @@
  */
 package com.ufpel.storm;
 
+import com.ufpel.util.SincronizaTarefas;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.storm.topology.BasicOutputCollector;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -44,12 +45,8 @@ public class CalcPiBolt extends BaseBasicBolt {
             collector.emit(new Values(result));
             System.out.println("Pi: " + result);
 
-            synchronized (this) {
-                try {
-                    this.wait();
-                } catch (InterruptedException ex) {
-                    System.out.println("Nao deu pra parar");
-                }
+            synchronized (SincronizaTarefas.LOCK) {
+                SincronizaTarefas.LOCK.notify();
             }
 
         } else {

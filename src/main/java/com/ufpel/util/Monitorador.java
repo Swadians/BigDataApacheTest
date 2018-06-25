@@ -35,7 +35,7 @@ public class Monitorador {
         new Thread(Monitorador.memoryMonitor).start();
     }
 
-    public static long getMaxMemoryUsage() {
+    public static double getMaxMemoryUsage() {
         Monitorador.memoryMonitor.setStop(true);
         return Monitorador.memoryMonitor.getMaiorUsoDeMemoria() / 1000000;
 

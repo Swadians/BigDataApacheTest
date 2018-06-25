@@ -37,7 +37,7 @@ public class Estatisticas {
 
     }
 
-    public double getMediaAritmetica(List<Double> valores) {
+    public static double getMediaAritmetica(List<Double> valores) {
 
         double total = 0;
 
